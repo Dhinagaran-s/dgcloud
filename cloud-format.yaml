@@ -1,0 +1,8 @@
+applications:
+  - name: NAME_OF_APPLICATION
+    host: HOST_OF_SERVER
+    username: USERNAME
+    password: PASSOWRD
+    git_repo_path: GIT_REPO_PATH_OF_APPLICATION
+    service_name: SERVICE_NAME_OF_APPLICATION
+    socket_name: SOCKET_NAME_OF_APPLICATION

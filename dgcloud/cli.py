@@ -1,5 +1,6 @@
 import click
 import yaml
+
 # import sys
 
 # sys.path.append("../cli")
@@ -30,11 +31,14 @@ def main():
     default=None,
     help="Name of the application to update. If not provided, lists all applications.",
 )
-@click.option('-c','--config-yaml', default='./cloud.yaml', show_default=True, help='Path to the YAML configuration file.')
-def update(
-    application_name,
-    config_yaml
-):
+@click.option(
+    "-c",
+    "--config-yaml",
+    default="./cloud.yaml",
+    show_default=True,
+    help="Path to the YAML configuration file.",
+)
+def update(application_name, config_yaml):
     """Updates the specified application on the remote server or lists all applications."""
     applications = load_applications(config_yaml)
 
@@ -63,8 +67,8 @@ def update(
     )
     manager = ServerManager(server_ip, ssh_user, ssh_password)
     output = manager.git_pull(application["git_repo_path"])
-    click.echo(f"Git pull output for '{application['name']}':\n{output}")
-    output = manager.git_application_status()
+    click.echo(f"Git pull output for '{application['name']}':\t{output}")
+    output = manager.git_application_status(service=application["service_name"])
     click.echo(f"Application status for '{application['name']}':\t{output}")
 
 
@@ -73,4 +77,3 @@ main.add_command(update)
 
 if __name__ == "__main__":
     main()
-
