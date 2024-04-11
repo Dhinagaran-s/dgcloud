@@ -1,9 +1,6 @@
 import click
 import yaml
 
-# import sys
-
-# sys.path.append("../cli")
 from .cloud import ServerManager
 
 
@@ -12,6 +9,10 @@ def load_applications(config_path):
         config = yaml.safe_load(file)
     return config["applications"]
 
+def load_access(config_path):
+    with open(config_path) as file:
+        config = yaml.safe_load(file)
+    return config["access"]
 
 def list_applications(applications):
     for i, app in enumerate(applications, start=1):
@@ -41,6 +42,7 @@ def main():
 def update(application_name, config_yaml):
     """Updates the specified application on the remote server or lists all applications."""
     applications = load_applications(config_yaml)
+    access = load_access(config_yaml)
 
     if application_name is None:
         click.echo("Available applications:")
@@ -60,16 +62,30 @@ def update(application_name, config_yaml):
         if not application:
             click.echo(f"Application '{application_name}' not found in configuration.")
             return
+    server = next((i for i in access if i['profile']==application['profile']),None)
     server_ip, ssh_user, ssh_password = (
-        application["host"],
-        application["username"],
-        application["password"],
+        server["host"],
+        server["username"],
+        server["password"],
     )
     manager = ServerManager(server_ip, ssh_user, ssh_password)
     output = manager.git_pull(application["git_repo_path"])
-    click.echo(f"Git pull output for '{application['name']}':\t{output}")
+    if output:
+        click.echo(f"Git pull output for '{application['name']}':\t{output}")
+    else:
+        click.echo(f"Git pull output for '{application['name']}':\tUnable to Get changes.")
+    output = manager.restart_application(socket=application["socket_name"],service=application["service_name"])
+    if output:
+        click.echo(f"Restart application output for '{application['name']}':\t{output}")
+    else:
+        click.echo(f"Restart application output for '{application['name']}':\tUnable to Restart Application.")
     output = manager.git_application_status(service=application["service_name"])
-    click.echo(f"Application status for '{application['name']}':\t{output}")
+    if output:
+        click.echo(f"Application status for '{application['name']}':\t{output}")
+    else:
+        click.echo(f"Application status for '{application['name']}':\tUnable to Get Application Status.")
+    
+    manager.ssh_connect_close()
 
 
 main.add_command(update)

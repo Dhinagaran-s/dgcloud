@@ -1,8 +1,14 @@
-applications:
-  - name: NAME_OF_APPLICATION
+access:
+  - profile: PROFILE_NAME_OF_USER
+    email: EMAIL_OF_USER
     host: HOST_OF_SERVER
     username: USERNAME
     password: PASSOWRD
+
+applications:
+  - name: NAME_OF_APPLICATION
+    profile: PROFILE_NAME_OF_USER
+    branch_name: GIT_BRANCH_NAME_OF_APPLICATION
     git_repo_path: GIT_REPO_PATH_OF_APPLICATION
     service_name: SERVICE_NAME_OF_APPLICATION
     socket_name: SOCKET_NAME_OF_APPLICATION
