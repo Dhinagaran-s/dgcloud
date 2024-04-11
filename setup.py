@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+from dgcloud.cli import __version__
 
 setup(
     name='dgcloud',
-    version='0.1.1',
+    version=__version__,
     packages=find_packages(),
     author='Dhinagaran (Dg)',
     author_email='dhinagaran1411@gmail.com',

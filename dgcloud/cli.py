@@ -4,6 +4,9 @@ import yaml
 from .cloud import ServerManager
 
 
+__version__ = "0.1.2"
+
+
 def load_applications(config_path):
     with open(config_path) as file:
         config = yaml.safe_load(file)
@@ -23,6 +26,13 @@ def list_applications(applications):
 def main():
     """CLI Tool for Managing Application Updates on Remote Servers."""
     pass
+
+
+@click.command()
+@click.version_option(version=__version__, prog_name='My CLI Application')
+def version():
+    """Display the version and exit."""
+    click.echo(f"Version: {__version__}")
 
 
 @click.command()
@@ -89,7 +99,7 @@ def update(application_name, config_yaml):
 
 
 main.add_command(update)
-
+main.add_command(version)
 
 if __name__ == "__main__":
     main()
