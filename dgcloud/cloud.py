@@ -82,3 +82,15 @@ class ServerManager:
         ]
 
         return True if len(commands_to_run) > 0 else False, commands_to_run
+
+
+    def udpate_applicaiton(self,data):
+        command = f'''
+                    echo "{self.ssh_password}" | sudo -S chmod -R 777 /web 
+                    cd {data["git_repo_path"]}
+                    git stash
+                    git pull
+                    sudo systemctl restart {data['socket_name']} && sudo systemctl restart {data['service_name']} && sudo systemctl status {data['socket_name']} {data['service_name']}
+                    '''
+        out, error = self.ssh_execute_command(command)
+        return out
