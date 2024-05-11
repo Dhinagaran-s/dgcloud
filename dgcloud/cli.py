@@ -98,7 +98,66 @@ def update(application_name, config_yaml):
     manager.ssh_connect_close()
 
 
+
+@click.command()
+@click.version_option(version=__version__, prog_name='My CLI Application')
+def version():
+    """Display the version and exit."""
+    click.echo(f"Version: {__version__}")
+
+
+@click.command()
+@click.option(
+    "-a",
+    "--application-name",
+    default=None,
+    help="Name of the application to update. If not provided, lists all applications.",
+)
+@click.option(
+    "-c",
+    "--config-yaml",
+    default="./cloud.yaml",
+    show_default=True,
+    help="Path to the YAML configuration file.",
+)
+def upgrade(application_name, config_yaml):
+    """Updates the specified application on the remote server or lists all applications."""
+    applications = load_applications(config_yaml)
+    access = load_access(config_yaml)
+
+    if application_name is None:
+        click.echo("Available applications:")
+        list_applications(applications)
+        choice = click.prompt(
+            "Please enter a number to update an application", type=int
+        )
+        if 0 < choice <= len(applications):
+            application = applications[choice - 1]
+        else:
+            click.echo("Invalid choice.")
+            return
+    else:
+        application = next(
+            (app for app in applications if app["name"] == application_name), None
+        )
+        if not application:
+            click.echo(f"Application '{application_name}' not found in configuration.")
+            return
+    server = next((i for i in access if i['profile']==application['profile']),None)
+    server_ip, ssh_user, ssh_password = (
+        server["host"],
+        server["username"],
+        server["password"],
+    )
+    manager = ServerManager(server_ip, ssh_user, ssh_password)
+    output = manager.udpate_applicaiton(data = application)
+    click.echo(output)
+    manager.ssh_connect_close()
+
+
+
 main.add_command(update)
+main.add_command(upgrade)
 main.add_command(version)
 
 if __name__ == "__main__":
